@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -25,7 +28,7 @@ public class Main extends JFrame {
      */
 
     private int [][] maze =
-            { {1,1,1,1,1,1,1,1,1,1,1,1,1}, 
+            { {1,1,1,1,1,1,1,1,1,1,1,1,1},
                     {1,0,1,0,1,0,1,0,0,0,0,0,1},
                     {1,0,1,0,0,0,1,0,1,1,1,0,1},
                     {1,0,0,0,1,1,1,0,0,0,0,0,1},
@@ -51,13 +54,13 @@ public class Main extends JFrame {
         pathIndex = path.size() - 2;
 
         // game loop each 0.5 seconds
-//        new Timer().schedule(new TimerTask() {
-//            @Override
-//            public void run() {
-//                update();
-//                repaint();
-//            }
-//        }, 100, 500);
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                update();
+                repaint();
+            }
+        }, 100, 500);
     }
 
     public void update() {
