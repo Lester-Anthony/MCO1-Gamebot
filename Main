@@ -1,69 +1,69 @@
-import java.util.List;
-
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-/**
- *
- * @author leo
- */
 public class Main extends JFrame {
-
-    /**
-     * Conventions:
-     *
-     * maze[row][col]
-     *
-     * Values: 0 = not-visited node
-     *         1 = wall (blocked)
-     *         2 = visited node
-     *         9 = target node
-     */
-
-    private int [][] maze =
-            { {1,1,1,1,1,1,1,1,1,1,1,1,1},
-                    {1,0,1,0,1,0,1,0,0,0,0,0,1},
-                    {1,0,1,0,0,0,1,0,1,1,1,0,1},
-                    {1,0,0,0,1,1,1,0,0,0,0,0,1},
-                    {1,0,1,0,0,0,0,0,1,1,1,0,1},
-                    {1,0,1,0,1,1,1,0,1,0,0,0,1},
-                    {1,0,1,0,1,0,0,0,1,1,1,0,1},
-                    {1,0,1,0,1,1,1,0,1,0,1,0,1},
-                    {1,0,0,0,0,0,0,0,0,0,1,9,1},
-                    {1,1,1,1,1,1,1,1,1,1,1,1,1}
-            };
-
-    private final List<Integer> path = new ArrayList<Integer>();
+    private int[][] maze;
+    private final List<Integer> path = new ArrayList<>();
     private int pathIndex;
 
-    public Main() {
+    public Main(int mazeSize) {
         setTitle("Simple Maze Solver");
         setSize(640, 480);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        //DepthFirst2.searchPath(maze, 1, 1, path);
+        initializeMaze(mazeSize);
+
         DepthFirst.searchPath(maze, 1, 1, path);
         pathIndex = path.size() - 2;
 
         // game loop each 0.5 seconds
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                update();
-                repaint();
-            }
-        }, 100, 500);
+//        new Timer().schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                update();
+//                repaint();
+//            }
+//        }, 100, 500);
     }
 
-    public void update() {
+    private void initializeMaze(int size) {
+        maze = new int[size+2][size+2];
+
+        //Outer boarder
+        for (int i = 0; i < size+2; i++) {
+            maze[i][0] = 1;          // Left border
+            maze[i][size+1] = 1;   // Right border
+        }
+
+        for (int j = 0; j < size+2; j++) {
+            maze[0][j] = 1;          // Top border
+            maze[size+1][j] = 1;   // Bottom border
+        }
+
+
+        // Create paths using a simple algorithm
+        // You can replace this with a more sophisticated maze generation algorithm
+        for (int i = 1; i < size - 1; i += 2) {
+            for (int j = 1; j < size - 1; j += 2) {
+                maze[i][j] = 0;
+            }
+        }
+
+        // Set the start and end points
+        maze[1][1] = 0; // Start
+        maze[size][size] = 9; // End
+    }
+
+    private void update() {
         pathIndex -= 2;
         if (pathIndex < 0) {
             pathIndex = 0;
@@ -81,9 +81,14 @@ public class Main extends JFrame {
             for (int col = 0; col < maze[0].length; col++) {
                 Color color;
                 switch (maze[row][col]) {
-                    case 1 : color = Color.BLACK; break;
-                    case 9 : color = Color.RED; break;
-                    default : color = Color.WHITE;
+                    case 1:
+                        color = Color.BLACK;
+                        break;
+                    case 9:
+                        color = Color.RED;
+                        break;
+                    default:
+                        color = Color.WHITE;
                 }
                 g.setColor(color);
                 g.fillRect(30 * col, 30 * row, 30, 30);
@@ -117,8 +122,7 @@ public class Main extends JFrame {
             if (pathIndex < 0) {
                 pathIndex = 0;
             }
-        }
-        else if (ke.getKeyCode() == KeyEvent.VK_LEFT) {
+        } else if (ke.getKeyCode() == KeyEvent.VK_LEFT) {
             pathIndex += 2;
             if (pathIndex > path.size() - 2) {
                 pathIndex = path.size() - 2;
@@ -128,14 +132,20 @@ public class Main extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                Main view = new Main();
-                view.setVisible(true);
-            }
+        SwingUtilities.invokeLater(() -> {
+            int mazeSize = getUserInput();
+            Main view = new Main(mazeSize);
+            view.setVisible(true);
         });
     }
 
+    private static int getUserInput() {
+        Scanner scanner = new Scanner(System.in);
+        int size;
+        do {
+            System.out.print("Enter the size of the maze (between 8 and 64): ");
+            size = scanner.nextInt();
+        } while (size < 8 || size > 64);
+        return size;
+    }
 }
-
